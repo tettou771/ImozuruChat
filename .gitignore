@@ -1,0 +1,9 @@
+.vs
+obj
+*.sln
+*.vcxproj*
+bin/*
+!bin/data
+!.gitignore
+log
+config.xml

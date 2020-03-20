@@ -1,0 +1,4 @@
+<config>
+	<mqtt address="server.host" port="1883" user="xxxx" password="yyyy" />
+	<client name="yourName" hue="20" />
+</config>	
