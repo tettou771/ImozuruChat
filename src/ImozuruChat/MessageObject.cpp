@@ -18,23 +18,23 @@ MessageObject::MessageObject(
 	// id
 	id = _id;
 
-	// ”­Œ¾Ò
+	// ç™ºè¨€è€…
 	talker = _talker;
 
-	// ƒƒbƒZ[ƒW
+	// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
 	message = _message;
 
-	// Fihue‚Å—^‚¦‚ç‚ê‚é‚Ì‚ÅAcolor‚É•ÏŠ·‚·‚éj
+	// è‰²ï¼ˆhueã§ä¸ãˆã‚‰ã‚Œã‚‹ã®ã§ã€colorã«å¤‰æ›ã™ã‚‹ï¼‰
 	color = ofColor::fromHsb(_talkerHue, 120, 255, 255);
 
-	// ƒƒbƒZ[ƒW‚Ìe‚ğw’è
+	// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®è¦ªã‚’æŒ‡å®š
 	parents.clear();
 	for (auto p : _parents) {
 		parents.push_back(p);
 		p->children.push_back(this);
 	}
 
-	// ƒƒbƒZ[ƒW‚Ì‰æ‘œ‚ğ¶¬
+	// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®ç”»åƒã‚’ç”Ÿæˆ
 	float marginX = 16;
 	float marginY = 6;
 	ofRectangle rect = font->getStringBoundingBox(_message, 0, 0);
@@ -45,33 +45,33 @@ MessageObject::MessageObject(
 	ofBackground(0, 0);
 	ofSetColor(color);
 	ofFill();
-	int rectMargin = 1; // —×‚ÌƒIƒuƒWƒFƒNƒg‚Æ‚¿‚å‚Á‚ÆƒXƒy[ƒX‚ğŠJ‚¯‚½‚æ‚¤‚ÉŒ©‚¹‚é‚½‚ßA¬‚³‚ß‚ÉÀ•z’c‚ğ•`‰æ
+	int rectMargin = 1; // éš£ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¨ã¡ã‚‡ã£ã¨ã‚¹ãƒšãƒ¼ã‚¹ã‚’é–‹ã‘ãŸã‚ˆã†ã«è¦‹ã›ã‚‹ãŸã‚ã€å°ã•ã‚ã«åº§å¸ƒå›£ã‚’æç”»
 	ofDrawRectRounded(rectMargin, rectMargin, mw - rectMargin * 2, mh - rectMargin * 2, mw / 2 - rectMargin);
 	ofSetColor(30);
 	font->drawString(message, marginX, rect.height + marginY);
 	messageFbo.end();
 
-	// box2dRect ‚ğİ’è
+	// box2dRect ã‚’è¨­å®š
 	box2dRect = shared_ptr<ofxBox2dRect>(new ofxBox2dRect);
 	float mass = 1.0;
-	float bound = 0.4;
+	float bound = 0.2;
 	float friction = 0.5;
 	box2dRect->setPhysics(mass, bound, friction);
 	box2dRect->setup(box2d->getWorld(), pos.x, pos.y, mw, mh);
-	box2dRect->enableGravity(false);
-	box2dRect->setVelocity(ofVec2f(0, 0));
+	box2dRect->enableGravity(true);
+    box2dRect->setVelocity(ofVec2f(0, 0));
 
-	// ƒIƒuƒWƒFƒNƒg“¯m‚ª‚­‚Á‚Â‚­—Í
-	parentsForce = 5;
+	// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆåŒå£«ãŒãã£ã¤ãåŠ›
+	parentsForce = 2;
 
-	cout << "Create message \"" << message << "\"" << endl;
+    cout << "Create message \"" << message << "\"" << endl;
 }
 
 MessageObject::~MessageObject() {
 }
 
 void MessageObject::update() {
-	// e‚Æ©•ª‚Æ‚ÌŠÔ‚Ìˆø—Í
+	// è¦ªã¨è‡ªåˆ†ã¨ã®é–“ã®å¼•åŠ›
 	for (auto p : parents) {
 		ofPoint parentVec = p->box2dRect->getPosition() - box2dRect->getPosition();
 
@@ -79,7 +79,7 @@ void MessageObject::update() {
 		p->box2dRect->addForce(parentVec, -parentsForce);
 	}
 
-	// ‰æ–ÊŠO‚Éo‚Ä‚¢‚½‚ç‹­§“I‚É–ß‚·
+	// ç”»é¢å¤–ã«å‡ºã¦ã„ãŸã‚‰å¼·åˆ¶çš„ã«æˆ»ã™
 	ofPoint pos = box2dRect->getPosition();
 	if (pos.x < 0) box2dRect->setPosition(0, pos.y);
 	if (ofGetWidth() < pos.x) box2dRect->setPosition(ofGetWidth(), pos.y);
@@ -88,8 +88,8 @@ void MessageObject::update() {
 }
 
 void MessageObject::draw() {
-	// q‚Æ‚ÌŠÔ‚Éü‚ğˆø‚­
-	// ƒIƒuƒWƒFƒNƒg‚Ì•`‰æ‚Ì‘O‚É‚·‚é‚±‚Æ‚ÅAƒIƒuƒWƒFƒNƒg‚Ì‰º‚É‘‚¯‚é
+	// å­ã¨ã®é–“ã«ç·šã‚’å¼•ã
+	// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®æç”»ã®å‰ã«ã™ã‚‹ã“ã¨ã§ã€ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ä¸‹ã«æ›¸ã‘ã‚‹
 	for (auto c : children) {
 		ofSetLineWidth(6);
 		ofSetColor(0, 50);
@@ -114,7 +114,7 @@ void MessageObject::draw() {
 
 }
 
-// ‘I‘ğ’†‚Ì‚à‚Ì‚Í˜g‚¾‚¯ƒnƒCƒ‰ƒCƒg‚·‚é
+// é¸æŠä¸­ã®ã‚‚ã®ã¯æ ã ã‘ãƒã‚¤ãƒ©ã‚¤ãƒˆã™ã‚‹
 void MessageObject::drawSelected() {
 	ofSetColor(255, 255, 0);
 	ofNoFill();
@@ -129,8 +129,8 @@ void MessageObject::drawSelected() {
 	ofPopMatrix();
 }
 
-// ˆÚ“®Œã‚ÌÀ•W‚É (x,y) ‚ª“ü‚Á‚Ä‚¢‚é‚©‚Ç‚¤‚©
-// ƒNƒŠƒbƒN‚Ì”»’è‚Ég‚¤
+// ç§»å‹•å¾Œã®åº§æ¨™ã« (x,y) ãŒå…¥ã£ã¦ã„ã‚‹ã‹ã©ã†ã‹
+// ã‚¯ãƒªãƒƒã‚¯ã®åˆ¤å®šã«ä½¿ã†
 bool MessageObject::inside(float x, float y) {
 	ofMatrix4x4 matrix;
 	matrix.makeIdentityMatrix();

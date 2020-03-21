@@ -4,6 +4,9 @@
 void ofApp::setup(){
 	ofLogToConsole();
 	ofSetFrameRate(60);
+#ifdef TARGET_OS_MAC
+    ofSetDataPathRoot("../Resources/data");
+#endif
 
 	chat.setup();
 }

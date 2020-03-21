@@ -25,28 +25,28 @@ public:
 	void mouseScrolled(ofMouseEventArgs &mouse);
 	void windowResized(int w, int h);
 
-	// MQTT‚ÌƒCƒxƒ“ƒgƒnƒ“ƒhƒ‰
+	// MQTTã®ã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©
 	void onMqttOnline();
 	void onMqttOffline();
 	void onMqttMessage(ofxMQTTMessage& message);
 
-	// ƒƒbƒZ[ƒW‚ÌƒIƒuƒWƒFƒNƒg‚ğì‚éƒƒ\ƒbƒh
-	// message‚ÍƒRƒƒ“ƒg“à—eB‚±‚ê‚Éƒƒ^ƒf[ƒ^‚ğ‚Â‚¯‚ÄƒT[ƒo‚É‘—‚é
-	// ‚±‚Ìƒƒ\ƒbƒh“à‚Å‚ÍƒIƒuƒWƒFƒNƒg‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚Íì‚ç‚¸A
-	// ‚ ‚­‚Ü‚Å‚àƒT[ƒo‚©‚ç‚Ìx‚Å‚µ‚©ì‚ç‚È‚¢
-	void makeMessage(string &message);
+	// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œã‚‹ãƒ¡ã‚½ãƒƒãƒ‰
+	// messageã¯ã‚³ãƒ¡ãƒ³ãƒˆå†…å®¹ã€‚ã“ã‚Œã«ãƒ¡ã‚¿ãƒ‡ãƒ¼ã‚¿ã‚’ã¤ã‘ã¦ã‚µãƒ¼ãƒã«é€ã‚‹
+	// ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰å†…ã§ã¯ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã¯ä½œã‚‰ãšã€
+	// ã‚ãã¾ã§ã‚‚ã‚µãƒ¼ãƒã‹ã‚‰ã®æ”¯æŒã§ã—ã‹ä½œã‚‰ãªã„
+	void makeMessage(string message);
 
-	// ƒT[ƒo‚ÉƒƒbƒZ[ƒW‚Ìƒf[ƒ^‚ğ‘—‚é
-	// messageData ‚ÍAtalker‚È‚Ç‚Ìƒƒ^ƒf[ƒ^‚ğ‚Ü‚Æ‚ß‚½string
+	// ã‚µãƒ¼ãƒã«ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®ãƒ‡ãƒ¼ã‚¿ã‚’é€ã‚‹
+	// messageData ã¯ã€talkerãªã©ã®ãƒ¡ã‚¿ãƒ‡ãƒ¼ã‚¿ã‚’ã¾ã¨ã‚ãŸstring
 	void sendMessageData(string &messageData);
 
-	// ƒT[ƒo‚©‚çó‚¯æ‚Á‚½ƒƒbƒZ[ƒW‚ğ¶¬‚·‚é
-	// _receivedMessageData ‚ÍAtalker‚È‚Ç‚Ìƒƒ^ƒf[ƒ^‚ğ‚Ü‚Æ‚ß‚½string
+	// ã‚µãƒ¼ãƒã‹ã‚‰å—ã‘å–ã£ãŸãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’ç”Ÿæˆã™ã‚‹
+	// _receivedMessageData ã¯ã€talkerãªã©ã®ãƒ¡ã‚¿ãƒ‡ãƒ¼ã‚¿ã‚’ã¾ã¨ã‚ãŸstring
 	void makeMessageFromReceivedData(string &_receivedMessageData);
 
-	// ©•ª‚Ìî•ñ
-	string myName; // ”­Œ¾Ò‚Ì–¼‘O
-	float myHue; // F‘Š
+	// è‡ªåˆ†ã®æƒ…å ±
+	string myName; // ç™ºè¨€è€…ã®åå‰
+	float myHue; // è‰²ç›¸
 
 private:
 	// tcp
@@ -60,27 +60,27 @@ private:
 	// ime
 	GoogleJapaneseInput ime;
 
-	// •¨—ƒGƒ“ƒWƒ“
+	// ç‰©ç†ã‚¨ãƒ³ã‚¸ãƒ³
 	ofxBox2d box2d;
 	ofMutex box2dMutex;
-	// box2d ‚ğ“Æ—§‚µ‚½ƒXƒŒƒbƒh‚Å‰ñ‚·‚½‚ß‚ÌƒNƒ‰ƒX
+	// box2d ã‚’ç‹¬ç«‹ã—ãŸã‚¹ãƒ¬ãƒƒãƒ‰ã§å›ã™ãŸã‚ã®ã‚¯ãƒ©ã‚¹
 	Box2dUpdater box2dUpdater;
 
-	// ƒƒbƒZ[ƒWƒIƒuƒWƒFƒNƒg‚Å•`‰æ‚·‚éƒtƒHƒ“ƒg
+	// ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§æç”»ã™ã‚‹ãƒ•ã‚©ãƒ³ãƒˆ
 	AlignableFont messageFont;
 
-	// ‘S‚Ä‚ÌƒƒbƒZ[ƒWƒIƒuƒWƒFƒNƒg
+	// å…¨ã¦ã®ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	vector<MessageObject *> messages;
 
-	// Œ»İ‘I‘ğ’†‚ÌƒƒbƒZ[ƒWƒIƒuƒWƒFƒNƒg
+	// ç¾åœ¨é¸æŠä¸­ã®ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 	vector<MessageObject *> selected;
 
-	// V‚µ‚­“oê‚·‚éƒIƒuƒWƒFƒNƒg‚ÌƒIƒtƒZƒbƒgˆÊ’u
-	// ‘I‘ğ‚³‚ê‚½ƒƒbƒZ[ƒW‚©‚ç‚ÌƒIƒtƒZƒbƒg
-	// ”ñ‘I‘ğ‚Ì‚Æ‚«‚ÍŸè‚É’†‰›‚©‚ço‚é‚Ì‚ÅŠÖŒW‚È‚¢
+	// æ–°ã—ãç™»å ´ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚ªãƒ•ã‚»ãƒƒãƒˆä½ç½®
+	// é¸æŠã•ã‚ŒãŸãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‹ã‚‰ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆ
+	// éé¸æŠã®ã¨ãã¯å‹æ‰‹ã«ä¸­å¤®ã‹ã‚‰å‡ºã‚‹ã®ã§é–¢ä¿‚ãªã„
 	ofPoint newMessageOffsetPos;
 
-	// İ’è‚ğƒ[ƒh
+	// è¨­å®šã‚’ãƒ­ãƒ¼ãƒ‰
 	void loadConfig();
 };
 

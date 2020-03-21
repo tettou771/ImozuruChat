@@ -1,4 +1,4 @@
-﻿#include "GoogleJapaneseInput.h"
+#include "GoogleJapaneseInput.h"
 
 GoogleJapaneseInput::GoogleJapaneseInput() {
 	ofSetEscapeQuitsApp(false);
@@ -69,8 +69,15 @@ void GoogleJapaneseInput::keyPressed(ofKeyEventArgs & key) {
 
 		// スペースキー（stateのトグルか、変換）
 	case ' ':
+#ifdef WIN32
+        // Windows
 		// Ctrl + Spaceで Eisu, Kana トグル
 		if (ofGetKeyPressed(OF_KEY_CONTROL) && key.key == ' ') {
+#else
+        // Mac
+        // Ctrl or Shift + Spaceで Eisu, Kana トグル
+        if ((ofGetKeyPressed(OF_KEY_CONTROL) || ofGetKeyPressed(OF_KEY_SHIFT)) && key.key == ' ') {
+#endif
 			switch (state) {
 			case Eisu:
 				state = Kana;
@@ -114,6 +121,7 @@ void GoogleJapaneseInput::keyPressed(ofKeyEventArgs & key) {
 		case KanaHenkan:
 			candidateToggle(-1);
 			break;
+            default: break;
 		}
 		break;
 	case OF_KEY_DOWN:
@@ -121,6 +129,7 @@ void GoogleJapaneseInput::keyPressed(ofKeyEventArgs & key) {
 		case KanaHenkan:
 			candidateToggle(1);
 			break;
+            default: break;
 		}
 		break;
 
@@ -132,6 +141,7 @@ void GoogleJapaneseInput::keyPressed(ofKeyEventArgs & key) {
 			if (ofGetKeyPressed(OF_KEY_SHIFT)) candidateLengthChange(false);
 			else candidateFocusToggle(-1);
 			break;
+        default: break;
 		}
 		break;
 	case OF_KEY_RIGHT:
@@ -141,6 +151,7 @@ void GoogleJapaneseInput::keyPressed(ofKeyEventArgs & key) {
 			if (ofGetKeyPressed(OF_KEY_SHIFT)) candidateLengthChange(true);
 			else candidateFocusToggle(1);
 			break;
+            default: break;
 		}
 		break;
 
@@ -196,6 +207,7 @@ void GoogleJapaneseInput::keyPressed(ofKeyEventArgs & key) {
 			case KanaNyuryoku:
 				alphabetToHiragana(beforeKana, beforeHenkan);
 				break;
+            default: break;
 			}
 
 			break;
@@ -210,7 +222,8 @@ void GoogleJapaneseInput::keyReleased(ofKeyEventArgs & key) {
 }
 
 string GoogleJapaneseInput::getAll() {
-	return UTF32toUTF8(afterHenkan + beforeHenkan + beforeKana);
+    u32string all = afterHenkan + beforeHenkan + beforeKana;
+	return UTF32toUTF8(all);
 }
 
 string GoogleJapaneseInput::getAfterHenkan() {
@@ -218,7 +231,8 @@ string GoogleJapaneseInput::getAfterHenkan() {
 }
 
 string GoogleJapaneseInput::getBeforeHenkan() {
-	return UTF32toUTF8(beforeHenkan + beforeKana);
+    u32string beforeHenkanKana = beforeHenkan + beforeKana;
+	return UTF32toUTF8(beforeHenkanKana);
 }
 
 void GoogleJapaneseInput::setFont(string path, float fontSize) {
@@ -353,7 +367,7 @@ void GoogleJapaneseInput::henkan() {
 	state = KanaHenkan;
 
 	// tryつきcout
-	auto tryCout = [](auto a, int n) {
+	auto tryCout = [](ofxJSONElement a, int n) {
 		for (int i = 0; i < n; ++i) {
 			cout << '\t';
 		}
@@ -394,24 +408,20 @@ void GoogleJapaneseInput::henkan() {
 		for (auto L1 : json) {
 			tryCout(L1, 0);
 			for (auto L2 : L1) {
-				bool L2Exist = tryCout(L2, 1);
-
-				// tryCoutが成功したら、変換前のかなが入っているので
-				// それを集める
-				if (L2Exist) {
-					candidateKana.push_back(UTF8toUTF32(L2.asString()));
+                // L2がstringなら、そこには変換候補が入っているので集める
+                if (L2.isString()) {
+                    string str = L2.asString();
+                    candidateKana.push_back(UTF8toUTF32(str));
 				}
 
-				// L2Exist は、各カッコのときL3が存在する
-				// なので、tryCoutが失敗したときにL3を調べる
-				else {
+                // もし配列ならL3のレベルを調べる
+				else if (L2.isArray()) {
 					// 候補リストを追加
 					candidate.push_back(vector<u32string>());
 					candidateSelected.push_back(0);
 
 					for (auto L3 : L2) {
-						bool L3Exist = tryCout(L3, 2);
-						if (L3Exist) {
+						if (L3.isString()) {
 							string element = L3.asString();
 
 							// 候補リストの中に入れる
@@ -594,7 +604,12 @@ string GoogleJapaneseInput::percentEnc(u32string u32str) {
 }
 
 string GoogleJapaneseInput::UTF32toUTF8(u32string & u32str) {
-	return convert8_32.to_bytes(reinterpret_cast<const uint32_t*>(u32str.c_str()));
+#ifdef WIN32
+    auto str = reinterpret_cast<const uint32_t*>(u32str.c_str());
+#else
+    auto str = reinterpret_cast<const char32_t*>(u32str.c_str());
+#endif
+    return convert8_32.to_bytes(str);
 }
 
 u32string GoogleJapaneseInput::UTF8toUTF32(string & str) {

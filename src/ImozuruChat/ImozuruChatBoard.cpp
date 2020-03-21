@@ -4,7 +4,7 @@ ImozuruChatBoard::ImozuruChatBoard() {
 }
 
 ImozuruChatBoard::~ImozuruChatBoard() {
-	auto delVector = [](auto M) {
+	auto delVector = [](vector<MessageObject*> M) {
 		for (auto m : M) {
 			delete m;
 		}
@@ -16,30 +16,31 @@ ImozuruChatBoard::~ImozuruChatBoard() {
 }
 
 void ImozuruChatBoard::setup() {
-	// box2d ‚Ì¢ŠE‚ğì‚é
+	// box2d ã®ä¸–ç•Œã‚’ä½œã‚‹
 	box2d.init();
 	box2d.createBounds(0, 0, ofGetWidth(), ofGetHeight());
 	float box2dFps = 60;
 	box2d.setFPS(box2dFps);
 	box2d.enableEvents();
-	box2d.registerGrabbing(); // mouseŒn‚Ìƒnƒ“ƒhƒ‰‚ª‚±‚ê‚Å—LŒø‚É‚È‚é
-	box2d.enableGrabbing(); // ƒIƒuƒWƒFƒNƒg‚Ìƒ}ƒEƒXƒhƒ‰ƒbƒO‚ğ—LŒø‰»
-	box2d.setGravity(0, -10);
+	box2d.registerGrabbing(); // mouseç³»ã®ãƒãƒ³ãƒ‰ãƒ©ãŒã“ã‚Œã§æœ‰åŠ¹ã«ãªã‚‹
+	box2d.enableGrabbing(); // ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒã‚¦ã‚¹ãƒ‰ãƒ©ãƒƒã‚°ã‚’æœ‰åŠ¹åŒ–
+	box2d.setGravity(0, 3);
 
 	ofRegisterKeyEvents(this);
 	ofRegisterMouseEvents(this);
 
-	ofTrueTypeFontSettings settings("fonts/NotoSansCJKjp-Regular.otf", 20);
+	ofTrueTypeFontSettings settings("fonts/NotoSansCJKjp-Regular.otf", 10);
 	settings.addRanges(ofAlphabet::Latin);
 	settings.addRanges(ofAlphabet::Japanese);
 	messageFont.load(settings);
 
-	ime.setFont("fonts/NotoSansCJKjp-Regular.otf", 20);
+	ime.setFont("fonts/NotoSansCJKjp-Regular.otf", 14);
 
-	// İ’è’l‚ğƒ[ƒh
+	// è¨­å®šå€¤ã‚’ãƒ­ãƒ¼ãƒ‰
 	loadConfig();
+    myHue = ofRandom(255);
 
-	// Ú‘±
+	// æ¥ç¶š
 	mqttClientID = "ImozuruChatUser_" + ofToString(ofRandom(1000000));
 	mqtt.begin(mqttAddress, mqttPort);
 	mqttTopic = "/message";
@@ -52,13 +53,15 @@ void ImozuruChatBoard::setup() {
 	ime.enable();
 
 	box2dUpdater.setup(&box2d, &box2dMutex);
+    
+    srand(ofGetUnixTime());
 }
 
 void ImozuruChatBoard::update() {
 	mqtt.update();
 	if (!mqtt.connected()) {
-		// ‚à‚µÚ‘±‚Å‚«‚Ä‚¢‚È‚©‚Á‚½‚çAÄÚ‘±‚ğ‚İ‚é
-		// ”•b‚É1“x
+		// ã‚‚ã—æ¥ç¶šã§ãã¦ã„ãªã‹ã£ãŸã‚‰ã€å†æ¥ç¶šã‚’è©¦ã¿ã‚‹
+		// æ•°ç§’ã«1åº¦
 		if (ofGetFrameNum() % 256 == 0) {
 			ofLogNotice() << "retry connect" << endl;
 			mqtt.connect(mqttClientID, mqttUser, mqttPassword);
@@ -73,6 +76,25 @@ void ImozuruChatBoard::update() {
 }
 
 void ImozuruChatBoard::draw() {
+    // èª¬æ˜
+    stringstream help;
+    help << "ä½¿ã„æ–¹" << endl;
+    help << "é©å½“ãªã¨ã“ã‚ã‚’ã‚¯ãƒªãƒƒã‚¯ã—ã¦æ–‡å­—å…¥åŠ›" << endl;
+#ifdef WIN32
+    help << "Ctrl + Enter ã§é€ä¿¡" << endl;
+#elif TARGET_OS_MAC
+    help << "Command + Enter ã§é€ä¿¡" << endl;
+#endif
+    help << "äººã®ã‚³ãƒ¡ãƒ³ãƒˆã«è¿”ä¿¡ã™ã‚‹ã¨ãã¯ã€ãã‚Œã‚’ã‚¯ãƒªãƒƒã‚¯ã—ã¦è¿”ä¿¡" << endl;
+    #ifdef WIN32
+    help << "æ–‡å­—å…¥åŠ›åˆ‡ã‚Šæ›¿ãˆ Ctrl + ã‚¹ãƒšãƒ¼ã‚¹ã‚­ãƒ¼" << endl;
+    #elif TARGET_OS_MAC
+    help << "æ–‡å­—å…¥åŠ›åˆ‡ã‚Šæ›¿ãˆ Shift + ã‚¹ãƒšãƒ¼ã‚¹ã‚­ãƒ¼" << endl;
+#endif
+    
+    ofSetColor(100);
+    messageFont.drawStringAlign(help.str(), 10, 10, AlignableFont::Align::LEFT, AlignableFont::Align::TOP);
+    
 	box2dMutex.lock();
 	for (auto m : messages) {
 		m->draw();
@@ -82,7 +104,7 @@ void ImozuruChatBoard::draw() {
 	}
 	box2dMutex.unlock();
 
-	// “ü—Í’†‚Ì•¶š‚ğ•`‰æ
+	// å…¥åŠ›ä¸­ã®æ–‡å­—ã‚’æç”»
 	ofPoint inputPos;
 	if (selected.empty()) {
 		inputPos.x = ofGetWidth() / 2;
@@ -107,13 +129,21 @@ void ImozuruChatBoard::draw() {
 }
 
 void ImozuruChatBoard::keyPressed(ofKeyEventArgs& key) {
-	// IME‚ÆŠ±Â‚·‚é‚Ì‚Å‚æ‚­’ˆÓ‚µ‚ÄÀ‘•‚·‚é‚±‚Æ
+	// IMEã¨å¹²æ¸‰ã™ã‚‹ã®ã§ã‚ˆãæ³¨æ„ã—ã¦å®Ÿè£…ã™ã‚‹ã“ã¨
 
 	switch (key.key) {
 
 	case OF_KEY_RETURN:
-		// CtrlƒL[‚ğ‰Ÿ‚µ‚Ä‚¢‚½‚ç¶¬‚·‚é
+#ifdef WIN32
+		// Ctrlã‚­ãƒ¼ã‚’æŠ¼ã—ã¦ã„ãŸã‚‰ç”Ÿæˆã™ã‚‹
 		if (ofGetKeyPressed(OF_KEY_CONTROL)) {
+#elif TARGET_OS_MAC
+            // Commandã‚­ãƒ¼ã‚’æŠ¼ã—ã¦ã„ãŸã‚‰ç”Ÿæˆã™ã‚‹
+            if (ofGetKeyPressed(OF_KEY_COMMAND)) {
+#else
+            // Ctrlã‚­ãƒ¼ã‚’æŠ¼ã—ã¦ã„ãŸã‚‰ç”Ÿæˆã™ã‚‹
+            if (ofGetKeyPressed(OF_KEY_CONTROL)) {
+#endif
 			makeMessage(ime.getAll());
 			ime.disable();
 			ime.clear();
@@ -175,22 +205,23 @@ void ImozuruChatBoard::onMqttOffline() {
 void ImozuruChatBoard::onMqttMessage(ofxMQTTMessage& message) {
 	ofLogNotice("MQTT Received") << message.topic << " " << message.payload;
 
-	// ƒf[ƒ^‚ª—L‚éŒÀ‚è“Ç‚Ş
+	// ãƒ‡ãƒ¼ã‚¿ãŒæœ‰ã‚‹é™ã‚Šèª­ã‚€
 	if (message.topic == mqttTopic) {
 		string receivedMessage = message.payload;
 		if (receivedMessage.length() > 0) makeMessageFromReceivedData(receivedMessage);
 	}
 }
 
-void ImozuruChatBoard::makeMessage(string& message) {
-	// ©•ª‚ÌŒÅ—Lid
-	// ‘å‚«‚È”‚Ì—”‚È‚Ì‚ÅAŸ‚ÌURL‚ğQl‚É‚µ‚½
+void ImozuruChatBoard::makeMessage(string message) {
+	// è‡ªåˆ†ã®å›ºæœ‰id
+	// å¤§ããªæ•°ã®ä¹±æ•°ãªã®ã§ã€æ¬¡ã®URLã‚’å‚è€ƒã«ã—ãŸ
 	// https://oshiete.goo.ne.jp/qa/2111837.html
 	int D = ULONG_MAX / RAND_MAX;
 	int M = ULONG_MAX % RAND_MAX;
 	unsigned long id = rand() * D + rand() % M;
+    id = ofRandom(1000000);
 
-	// eƒIƒuƒWƒFƒNƒg‚Ìid
+	// è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®id
 	unsigned long parentId = 0;
 	if (!selected.empty()) {
 		parentId = selected[0]->id;
@@ -222,7 +253,7 @@ void ImozuruChatBoard::makeMessageFromReceivedData(string& _receivedMessageData)
 
 	int requireElementNum = 5;
 	auto elements = ofSplitString(_receivedMessageData, "|");
-	// —v‘f‚Ì”‚ª–‚½‚È‚©‚Á‚½‚ç‹A‚é
+	// è¦ç´ ã®æ•°ãŒæº€ãŸãªã‹ã£ãŸã‚‰å¸°ã‚‹
 	if (elements.size() < requireElementNum) {
 		ofLog() << "element num " << elements.size() << " less than " << requireElementNum << ".";
 		return;
@@ -234,10 +265,10 @@ void ImozuruChatBoard::makeMessageFromReceivedData(string& _receivedMessageData)
 	float hue = ofToFloat(elements[3]);
 	unsigned long parentId = ofToInt64(elements[4]);
 
-	// ‹ó‚Ì•¶š—ñ‚¾‚Á‚½‚ç–³‹‚·‚é
+	// ç©ºã®æ–‡å­—åˆ—ã ã£ãŸã‚‰ç„¡è¦–ã™ã‚‹
 	if (messageStr.length() <= 0) return;
 
-	// eƒIƒuƒWƒFƒNƒg‚ğ’T‚·
+	// è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ¢ã™
 	vector<MessageObject*> parents = vector<MessageObject*>();
 	for (auto m : messages) {
 		if (m->id == parentId) {
@@ -245,31 +276,31 @@ void ImozuruChatBoard::makeMessageFromReceivedData(string& _receivedMessageData)
 		}
 	}
 
-	// ¶¬‚·‚éÀ•W
+	// ç”Ÿæˆã™ã‚‹åº§æ¨™
 	ofPoint pos;
 
-	// ”ñ‘I‘ğó‘Ô‚È‚ç‚Æ‚è‚ ‚¦‚¸’†‰›‚Éo‚·
+	// éé¸æŠçŠ¶æ…‹ãªã‚‰ã¨ã‚Šã‚ãˆãšä¸­å¤®ã«å‡ºã™
 	if (parents.empty()) {
 		pos.x = ofGetWidth() / 2;
 		pos.y = ofGetHeight() / 2;
 	}
-	// ‘I‘ğ‚µ‚Ä‚¢‚éƒIƒuƒWƒFƒNƒg‚ª‚ ‚é‚È‚çA‚»‚Ì‰º‚Éo‚·
+	// é¸æŠã—ã¦ã„ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒã‚ã‚‹ãªã‚‰ã€ãã®ä¸‹ã«å‡ºã™
 	else {
 		for (auto s : parents) {
 			pos += s->box2dRect->getPosition();
 		}
 		pos /= parents.size();
 
-		// ‘I‘ğ‚µ‚Ä‚¢‚éƒƒbƒZ[ƒW‚Ì‰º‚Éo‚µ‚½‚¢‚Ì‚ÅA
-		// —\‚ßŒˆ‚ß‚Ä‚¢‚éƒIƒtƒZƒbƒg‚ğ‘«‚·
+		// é¸æŠã—ã¦ã„ã‚‹ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã®ä¸‹ã«å‡ºã—ãŸã„ã®ã§ã€
+		// äºˆã‚æ±ºã‚ã¦ã„ã‚‹ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’è¶³ã™
 		pos += newMessageOffsetPos;
 	}
 
 	ofRectangle rect;
 	messages.push_back(new MessageObject(id, talkerName, messageStr, hue, parents, &box2d, pos, &messageFont));
 
-	// ‘I‘ğ‚³‚ê‚½ƒIƒuƒWƒFƒNƒg‚Ìq‚É‚Â‚­‚Æ‚«‚ÍA
-	// ‘I‘ğ‘ÎÛ‚ğq‚ÉØ‚è‘Ö‚¦‚éB
+	// é¸æŠã•ã‚ŒãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å­ã«ã¤ãã¨ãã¯ã€
+	// é¸æŠå¯¾è±¡ã‚’å­ã«åˆ‡ã‚Šæ›¿ãˆã‚‹ã€‚
 	bool parentIsSelected = false;
 	for (auto p : parents) {
 		for (auto s : selected) {

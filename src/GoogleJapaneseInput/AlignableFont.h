@@ -18,7 +18,7 @@ public:
 #ifdef USE_ofxTrueTypeFontUC
 		ofxTrueTypeFontUC::ofxTrueTypeFontUC();
 #else
-		ofTrueTypeFont::ofTrueTypeFont();
+		ofTrueTypeFont();
 #endif
 	};
 	~AlignableFont() {

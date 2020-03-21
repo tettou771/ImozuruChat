@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 
 // 文字コードの変換に必要
@@ -83,9 +83,13 @@ private:
 	//wstring_convert<codecvt_utf8<char32_t>, char32_t> convert8_32;
 	
 	// 変換器(UTF8 UTF32)
+#ifdef WIN32
 	// char32_t を使うとVS2015でリンクエラーとなるので、unit32_t を使っている
 	// ソース Qiita http://qiita.com/benikabocha/items/1fc76b8cea404e9591cf
 	wstring_convert<codecvt_utf8<uint32_t>, uint32_t> convert8_32;
+#else
+    wstring_convert<codecvt_utf8<char32_t>, char32_t> convert8_32;
+#endif
 	string UTF32toUTF8(u32string &u32str);
 	u32string UTF8toUTF32(string &str);
 	// ローマ字-ひらがな変換用の辞書

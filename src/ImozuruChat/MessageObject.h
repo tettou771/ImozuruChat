@@ -24,32 +24,32 @@ public:
 	void drawSelected();
 	shared_ptr<ofxBox2dRect> box2dRect;
 
-	// ���b�Z�[�W�̃e�L�X�g
+	// メッセージのテキスト
 	string message;
 
-	// ���b�Z�[�W�̌ŗLID
-	// �������Ƀ����_���ŐU����
+	// メッセージの固有ID
+	// 生成時にランダムで振られる
 	unsigned long id;
 
-	// ������
+	// 発言者
 	string talker;
 
-	// ���b�Z�[�W�̐F�i�����҂̐F�j
+	// メッセージの色（発言者の色）
 	ofColor color;
 
-	// �e�L�X�g�����O�ɕ`�悷�� fbo
+	// テキストを事前に描画する fbo
 	ofFbo messageFbo;
 
-	// 1�O�̃I�u�W�F�N�g
+	// 1つ前のオブジェクト
 	vector<MessageObject *> parents;
 
-	// 1��̃I�u�W�F�N�g
+	// 1つ後のオブジェクト
 	vector<MessageObject *> children;
 
-	// �O�̃��b�Z�[�W�Ƃ̊Ԃ̈��͂̌W���i�{���j
+	// 前のメッセージとの間の引力の係数（倍率）
 	float parentsForce;
 
-	// �I���̂Ƃ��Ɏg�����\�b�h
+	// 選択のときに使うメソッド
 	bool inside(float x, float y);
 };
 

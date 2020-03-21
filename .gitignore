@@ -2,6 +2,12 @@
 obj
 *.sln
 *.vcxproj*
+*.xcodeproj
+Makefile
+*.xcconfig
+config.make
+openFrameworks-Info.plist
+.*.swp
 bin/*
 !bin/data
 !.gitignore
